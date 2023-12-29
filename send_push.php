@@ -1,11 +1,16 @@
 <?php
 
 require __DIR__ . '/vendor/autoload.php';
+require 'send_single_push.php';
 
 // use Minishlink\Webpush\Webpush;
 
 $subscriptions = json_decode(file_get_contents('https://spzroenkhausen.bplaced.net/api/attendence.php?api_token=0eef5dacbf418992610dbf2bf593f57c&missing&event_id=' . $argv[1]));
 
+if($subscriptions == null){
+	send_single_push(0);
+	exit();
+}
 
 
 $auth = [
@@ -24,7 +29,7 @@ $webPush = new \Minishlink\WebPush\WebPush($auth);
 // Payload vorbereiten
 $payload = [
 	"title"	=> "Fehlende Rückmeldung!",
-	"body"	=> "Für einen heutigen Termin fehlt eine Rückmeldung",
+	"body"	=> $argv[2] . " " . $argv[3],
 	"badge"	=> "https://spzroenkhausen.bplaced.net/static/media/4.95cce34e11d6b0d3b99c.png",
 	"icon"	=> "https://spzroenkhausen.bplaced.net/static/media/4.95cce34e11d6b0d3b99c.png",
 	"image"	=> "https://spzroenkhausen.bplaced.net/static/media/4.95cce34e11d6b0d3b99c.png",
@@ -46,13 +51,21 @@ foreach($subscriptions as $sub){
 );
 }
 
+$error = 0;
+
 // Notification senden
+echo "---" . count($subscriptions) . "---\n";
 foreach ($webPush->flush() as $report) {
+    $endpoint = $report->getRequest()->getUri()->__toString();
     if ($report->isSuccess()) {
-        echo "OK\n";
+        echo "[y] OK for subscription {$endpoint}\n";
     } else {
-        echo "Fehler: {$report->getReason()}\n";
+	$error = $error + 1;
+        echo "[x] Message failed to sent for subscription {$endpoint}: {$report->getReason()}\n";
     }
 }
+echo "-------\n";
+
+send_single_push(count($subscriptions), $error);
 
 ?>
