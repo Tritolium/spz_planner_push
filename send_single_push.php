@@ -35,9 +35,9 @@ function send_single_push($devices, $error)
 
 	// Subscription des Users
 	$subscription = \Minishlink\WebPush\Subscription::create([
-		"endpoint" => "https://web.push.apple.com/QNZ3Hfb2te30j98M4W6nlu9EkprCkjZ1T3ZlDL1jVfN7rMd03ohB5VyKfbnvJnc6ILXH5Fe0-4mm2Lh_Z9bXmSttZhIKOriA23ePlecqC44AOqTTagRjWoPz3Dzb5SAJSzB8fMXb-0K0vaP9eOrAeEsG_O9ExbIdnMxvKd-Vfa4",
-		"publicKey" => "BKj6A2hXq2oyOLt2eueLXUgVdPD6cd7CKbeIXO47R93gFQHbGkIzZWlaRViYQx5M8D_3r56x53w2z3ldVVV9eVI",
-		"authToken" => "Dut34WtemunYi1SP-_CTdQ",
+		"endpoint" => "https://web.push.apple.com/QGZ3jvNz9U_yYNjIrZA2RvQI_cav_eX65cQt1o07ooVThttGkMf9DfHXMdTrkTTVhRDlg6syrAIMfMtrRiLcum6OhQ-CUcxfFDsWF3VzMLj7WcracVm2M22MPvwMaL-t_R--CB3TL_jJHX2PPnGowc1_w9alV0mw7eGdOerccec",
+		"publicKey" => "BI5fwWK0qFuFXme06s-5Jgobwbjgiysqk4x6ddbfvvdQ_uXjOObFwFmur0YH8NOpbUpFVRQgr8qrtkB75UUIB6I",
+		"authToken" => "9gd7bSEebqlCvQnChpIlpg",
 	]);
 
 	// Notification vorbereiten
