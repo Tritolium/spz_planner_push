@@ -6,6 +6,8 @@ require __DIR__ . '/vendor/autoload.php';
 
 function send_single_push($devices, $error)
 {
+	$url = 'https://spzroenkhausen.bplaced.net';
+
 	$auth = [
 		'VAPID' => [
 			'subject' => 'https://tritolium.github.io',
@@ -33,12 +35,23 @@ function send_single_push($devices, $error)
 		"vibrate"	=> [300, 100, 400]
 	];
 
-	// Subscription des Users
-	$subscription = \Minishlink\WebPush\Subscription::create([
-		"endpoint" => "https://web.push.apple.com/QGZ3jvNz9U_yYNjIrZA2RvQI_cav_eX65cQt1o07ooVThttGkMf9DfHXMdTrkTTVhRDlg6syrAIMfMtrRiLcum6OhQ-CUcxfFDsWF3VzMLj7WcracVm2M22MPvwMaL-t_R--CB3TL_jJHX2PPnGowc1_w9alV0mw7eGdOerccec",
-		"publicKey" => "BI5fwWK0qFuFXme06s-5Jgobwbjgiysqk4x6ddbfvvdQ_uXjOObFwFmur0YH8NOpbUpFVRQgr8qrtkB75UUIB6I",
-		"authToken" => "9gd7bSEebqlCvQnChpIlpg",
-	]);
+	// Subscription des Users, member_id 3
+	$admin_subscriptions = json_decode(file_get_contents($url . '/api/v0/pushsubscription?member_id=3&api_token=0eef5dacbf418992610dbf2bf593f57c'));
+
+	foreach($admin_subscriptions as $sub){
+		// Subscription des Users
+		$subscription = \Minishlink\WebPush\Subscription::create([
+			"endpoint" => $sub->endpoint,
+			"publicKey" => $sub->publicKey,
+			"authToken" => $sub->authToken,
+		]);
+
+		// Notification vorbereiten
+		$webPush->queueNotification(
+			$subscription,
+			json_encode($payload)
+		);
+	}
 
 	// Notification vorbereiten
 	$result = $webPush->queueNotification(
@@ -51,6 +64,22 @@ function send_single_push($devices, $error)
 		if ($report->isSuccess()) {
 			echo "OK\n";
 		} else {
+			foreach($admin_subscriptions as $sub){
+				if ($sub->endpoint == $report->getRequest()->getUri()->__toString()) {
+					echo "Fehler bei {$sub->endpoint}, lösche Subscription\n";
+					// Subscription löschen
+					$options = [
+						'http' => [
+							'method' => 'DELETE',
+							'header' => 'Content-Type: application/x-www-form-urlencoded',
+						],
+					];
+
+					$context = stream_context_create($options);
+					$result = file_get_contents($url . '/api/v0/pushsubscription/' . $sub->subscription_id . '?api_token=0eef5dacbf418992610dbf2bf593f57c', false, $context);
+					var_dump($result);
+				}
+			}
 			echo "Fehler: {$report->getReason()}\n";
 		}
 	}
