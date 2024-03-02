@@ -4,7 +4,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 // use Minishlink\Webpush\Webpush;
 
-function send_single_push($devices, $error)
+function send_single_push($devices, $error = 0)
 {
 	$url = 'https://spzroenkhausen.bplaced.net';
 
@@ -19,7 +19,9 @@ function send_single_push($devices, $error)
 	// Web-Push-Objekt initialisieren
 	$webPush = new \Minishlink\WebPush\WebPush($auth);
 
-	$body = "Push an " . $devices . " Geräte verschickt";
+	$body = ($devices == 0) ? "Kein Push verschickt" : 
+		(($devices == 1) ? "Push an 1 Gerät verschickt" : 
+		"Push an " . $devices . " Geräte verschickt");
 	
 	if($error > 0){
 		$body = $body . ", bei " . $error . " fehlgeschlagen";
