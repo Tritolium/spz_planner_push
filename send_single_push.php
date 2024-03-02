@@ -4,7 +4,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 // use Minishlink\Webpush\Webpush;
 
-function send_single_push($devices, $error)
+function send_single_push($devices, $error = 0)
 {
 	$url = 'https://spzroenkhausen.bplaced.net';
 
