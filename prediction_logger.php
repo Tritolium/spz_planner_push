@@ -1,6 +1,8 @@
 <?php
 $events = json_decode(file_get_contents('https://spzroenkhausen.bplaced.net/api/v0/events.php?api_token=0eef5dacbf418992610dbf2bf593f57c'));
 
+date_default_timezone_set('Europe/Berlin');
+
 if($events){
     foreach($events as $event){
         # skip events that are already over or too far in the future
