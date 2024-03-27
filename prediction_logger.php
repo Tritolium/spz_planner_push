@@ -20,15 +20,20 @@ if($events){
 
         $prediction = $ev_attendence->Attendence->Consent + $ev_attendence->Attendence->ProbAttending;
 
-        $logentry = date("Y-m-d H:i") . ": " . $prediction . ", " . $ev_attendence->Attendence->Consent . ", " . $ev_attendence->Attendence->Maybe . "\n";
+        $logentry = date("Y-m-d H:i") . ", " . $prediction . ", " . $ev_attendence->Attendence->Consent . ", " . $ev_attendence->Attendence->Maybe . "\n";
 
         if(is_dir(dirname(__FILE__) . "/prediction_log/") == false){
             mkdir(dirname(__FILE__) . "/prediction_log/");
         }
 
-        $filename = dirname(__FILE__) . "/prediction_log/" . $event->Event_ID . "-" . $event->Type . ".log";
+        $filename = dirname(__FILE__) . "/prediction_log/" . $event->Event_ID . "-" . $event->Type . ".csv";
 
-        $logfile = fopen($filename, "a");
+        if (!file_exists($filename)){
+            $logfile = fopen($filename, "a");
+            fwrite($logfile, "Date, Prediction, Consent, Maybe\n");
+        } else {
+            $logfile = fopen($filename, "a");
+        }
 
         fwrite($logfile, $logentry);
         fclose($logfile);
