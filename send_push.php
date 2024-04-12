@@ -5,7 +5,9 @@ require 'send_single_push.php';
 
 // use Minishlink\Webpush\Webpush;
 
-$subscriptions = json_decode(file_get_contents('https://spzroenkhausen.bplaced.net/api/attendence.php?api_token=0eef5dacbf418992610dbf2bf593f57c&missing&event_id=' . $argv[1]));
+$url = 'https://spzroenkhausen.bplaced.net';
+
+$subscriptions = json_decode(file_get_contents($url . '/api/attendence.php?api_token=0eef5dacbf418992610dbf2bf593f57c&missing&event_id=' . $argv[1]));
 
 if($subscriptions == null){
 	send_single_push(0);
@@ -53,6 +55,14 @@ foreach($subscriptions as $sub){
 
 $error = 0;
 
+// delete-options
+$options = [
+	'http' => [
+		'method' => 'DELETE',
+		'header' => 'Content-type: application/x-www-form-urlencoded'
+	]
+];
+
 // Notification senden
 echo "---" . count($subscriptions) . "---\n";
 foreach ($webPush->flush() as $report) {
@@ -60,8 +70,16 @@ foreach ($webPush->flush() as $report) {
     if ($report->isSuccess()) {
         echo "[y] OK for subscription {$endpoint}\n";
     } else {
-	$error = $error + 1;
+		$error = $error + 1;
         echo "[x] Message failed to sent for subscription {$endpoint}: {$report->getReason()}\n";
+		echo "    Deleting subscription\n";
+		foreach($subscriptions as $sub){
+			if ($sub->endpoint == $endpoint) {
+				$context = stream_context_create($options);
+				$result = file_get_contents($url . '/api/v0/pushsubscription/' . $sub->subscription_id . '?api_token=0eef5dacbf418992610dbf2bf593f57c', false, $context);
+				var_dump($result);
+			}
+		}
     }
 }
 echo "-------\n";
