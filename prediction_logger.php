@@ -18,9 +18,11 @@ if($events){
 
         $ev_attendence = json_decode(file_get_contents('https://spzroenkhausen.bplaced.net/api/v0/attendence/' . $event->Event_ID . '?api_token=0eef5dacbf418992610dbf2bf593f57c'));
 
-        $prediction = $ev_attendence->Attendence->Consent + $ev_attendence->Attendence->ProbAttending;
+        $prediction = $ev_attendence->Attendence->Consent + $ev_attendence->Attendence->ProbAttending + $ev_attendence->Attendence->PlusOne;
+        $consent = $ev_attendence->Attendence->Consent + $ev_attendence->Attendence->PlusOne;
+        $maybe = $ev_attendence->Attendence->Maybe;
 
-        $logentry = date("Y-m-d H:i") . ", " . $prediction . ", " . $ev_attendence->Attendence->Consent . ", " . $ev_attendence->Attendence->Maybe . "\n";
+        $logentry = date("Y-m-d H:i") . ", " . $prediction . ", " . $consent . ", " . $maybe . "\n";
 
         if(is_dir(dirname(__FILE__) . "/prediction_log/") == false){
             mkdir(dirname(__FILE__) . "/prediction_log/");
