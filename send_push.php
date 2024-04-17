@@ -7,7 +7,36 @@ require 'send_single_push.php';
 
 $url = 'https://spzroenkhausen.bplaced.net';
 
-$subscriptions = json_decode(file_get_contents($url . '/api/attendence.php?api_token=0eef5dacbf418992610dbf2bf593f57c&missing&event_id=' . $argv[1]));
+if(isset($argv[1]) == false){
+	echo "No event_id given\n";
+	exit();
+}
+
+if(isset($argv[2]) == false){
+	echo "No event_type given\n";
+	exit();
+}
+
+if(isset($argv[3]) == false){
+	echo "No event_location given\n";
+	exit();
+}
+
+if(isset($argv[4]) == false){
+	$missing_only = false;
+} else {
+	if ($argv[4] == "monly") {
+		$missing_only = true;
+	} else {
+		$missing_only = false;
+	}
+}
+
+if($missing_only){
+	$subscriptions = json_decode(file_get_contents($url . '/api/attendence.php?api_token=0eef5dacbf418992610dbf2bf593f57c&missing&monly&event_id=' . $argv[1]));
+} else {
+	$subscriptions = json_decode(file_get_contents($url . '/api/attendence.php?api_token=0eef5dacbf418992610dbf2bf593f57c&missing&event_id=' . $argv[1]));
+}
 
 if($subscriptions == null){
 	send_single_push(0);
