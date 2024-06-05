@@ -28,7 +28,15 @@ if($events){
             mkdir(dirname(__FILE__) . "/prediction_log/");
         }
 
-        $filename = dirname(__FILE__) . "/prediction_log/" . $event->Event_ID . "-" . $event->Type . ".csv";
+        $filename = $event->Event_ID . "-" . $event->Type . ".csv";
+
+        // remove german special characters from filename
+        $filename = str_replace(array('ä', 'ö', 'ü', 'ß', 'Ä', 'Ö', 'Ü'), array('ae', 'oe', 'ue', 'ss', 'Ae', 'Oe', 'Ue'), $filename);
+
+        // remove special characters from filename
+        $filename = preg_replace('/[^A-Za-z0-9\-\.]/', '_', $filename);
+
+        $filename = dirname(__FILE__) . "/prediction_log/" . $filename;
 
         if (!file_exists($filename)){
             $logfile = fopen($filename, "a");
