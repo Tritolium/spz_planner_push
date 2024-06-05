@@ -1,3 +1,4 @@
 composer.phar
 /prediction_log/
+/usage_log/
 /vendor/
