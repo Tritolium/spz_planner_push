@@ -1,5 +1,31 @@
 <?php
-$events = json_decode(file_get_contents('https://spzroenkhausen.bplaced.net/api/v0/events.php?api_token=0eef5dacbf418992610dbf2bf593f57c'));
+
+$MAX_RETRIES = 3;
+$retry = 0;
+
+$session = curl_init();
+curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
+curl_setopt($session, CURLOPT_URL, 'https://spzroenkhausen.bplaced.net/api/v0/events.php?api_token=0eef5dacbf418992610dbf2bf593f57c');
+
+while($retry < $MAX_RETRIES){
+    $contents = curl_exec($session);
+
+    if($contents == false){
+        $retry++;
+    } else {
+        break;
+    }
+}
+
+curl_close($session);
+
+if($contents == false){
+    echo "Failed to fetch events\n";
+    exit(1);
+}
+
+$events = json_decode($contents);
 
 date_default_timezone_set('Europe/Berlin');
 
