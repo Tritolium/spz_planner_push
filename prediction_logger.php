@@ -43,12 +43,70 @@ if($events){
         }
 
         $ev_attendence = json_decode(file_get_contents('https://spzroenkhausen.bplaced.net/api/v0/attendence/' . $event->Event_ID . '?api_token=0eef5dacbf418992610dbf2bf593f57c'));
+        $ev = json_decode(file_get_contents('https://spzroenkhausen.bplaced.net/api/v0/events/' . $event->Event_ID . '?api_token=0eef5dacbf418992610dbf2bf593f57c'));
+
+        print_r($ev);
+
+
 
         $prediction = $ev_attendence->Attendence->Consent + $ev_attendence->Attendence->ProbAttending + $ev_attendence->Attendence->PlusOne;
         $consent = $ev_attendence->Attendence->Consent + $ev_attendence->Attendence->PlusOne;
         $maybe = $ev_attendence->Attendence->Maybe;
 
-        $logentry = date("Y-m-d H:i") . ", " . $prediction . ", " . $consent . ", " . $maybe . "\n";
+        $logentry = date("Y-m-d H:i") . ", " . $prediction . ", " . $consent . ", " . $maybe;
+
+        if($ev->Category == "event"){
+            // get location
+            if($ev->Address != ""){
+                $ev->Address = $ev->Location;
+            }
+            
+            // get geo coordinates
+            $url = "https://api.maptiler.com/geocoding/";
+            $add = urlencode($ev->Address);
+            $url .= $add;
+            $url .= ".json?key=m4hEVQNm2k3vfyEB1Bsy";
+
+            $session = curl_init();
+            curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($session, CURLOPT_URL, $url);
+
+            $contents = curl_exec($session);
+
+            curl_close($session);
+
+            $geo = json_decode($contents);
+
+            $lat = $geo->features[0]->geometry->coordinates[1];
+            $lon = $geo->features[0]->geometry->coordinates[0];
+
+            // get weather
+            $url = "https://api.open-meteo.com/v1/forecast?latitude=" . $lat . "&longitude=" . $lon . "&hourly=apparent_temperature,weathercode&start_date=" . $ev->Date . "&end_date=" . $ev->Date . "&timezone=Europe/Berlin";
+
+            $session = curl_init();
+            curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($session, CURLOPT_URL, $url);
+
+            $contents = curl_exec($session);
+
+            curl_close($session);
+
+            $weather = json_decode($contents);
+
+            // get weather for event time
+            $hour = substr($ev->Begin, 0, 2);
+            $hour = intval($hour);
+
+            $weathercode = $weather->hourly->weathercode[$hour];
+            $temperature = $weather->hourly->apparent_temperature[$hour];
+
+            $logentry .= ", " . $weathercode . ", " . $temperature . "\n";
+        } else {
+            $logentry .= "\n";
+        }
+
 
         if(is_dir(dirname(__FILE__) . "/prediction_log/") == false){
             mkdir(dirname(__FILE__) . "/prediction_log/");
@@ -66,7 +124,11 @@ if($events){
 
         if (!file_exists($filename)){
             $logfile = fopen($filename, "a");
-            fwrite($logfile, "Date, Prediction, Consent, Maybe\n");
+            if($ev->Category == "event"){
+                fwrite($logfile, "Date, Prediction, Consent, Maybe, Weathercode, Temperature\n");
+            } else {
+                fwrite($logfile, "Date, Prediction, Consent, Maybe\n");
+            }
         } else {
             $logfile = fopen($filename, "a");
         }
