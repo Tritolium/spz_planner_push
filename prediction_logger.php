@@ -45,10 +45,6 @@ if($events){
         $ev_attendence = json_decode(file_get_contents('https://spzroenkhausen.bplaced.net/api/v0/attendence/' . $event->Event_ID . '?api_token=0eef5dacbf418992610dbf2bf593f57c'));
         $ev = json_decode(file_get_contents('https://spzroenkhausen.bplaced.net/api/v0/events/' . $event->Event_ID . '?api_token=0eef5dacbf418992610dbf2bf593f57c'));
 
-        print_r($ev);
-
-
-
         $prediction = $ev_attendence->Attendence->Consent + $ev_attendence->Attendence->ProbAttending + $ev_attendence->Attendence->PlusOne;
         $consent = $ev_attendence->Attendence->Consent + $ev_attendence->Attendence->PlusOne;
         $maybe = $ev_attendence->Attendence->Maybe;
