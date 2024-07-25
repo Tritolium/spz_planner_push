@@ -53,7 +53,7 @@ if($events){
 
         if($ev->Category == "event"){
             // get location
-            if($ev->Address != ""){
+            if($ev->Address == ""){
                 $ev->Address = $ev->Location;
             }
             
