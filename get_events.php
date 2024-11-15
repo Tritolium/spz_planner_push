@@ -1,5 +1,19 @@
 <?php
-$events = json_decode(file_get_contents('https://spzroenkhausen.bplaced.net/api/event.php?api_token=0eef5dacbf418992610dbf2bf593f57c&today'));
+$events = json_decode(file_get_contents('https://spzroenkhausen.bplaced.net/api/v0/events?api_token=0eef5dacbf418992610dbf2bf593f57c'));
+
+// filter out events that are not today
+if($events){
+    foreach($events as $event){
+        if($event->Date != date("Y-m-d")){
+            unset($events[array_search($event, $events)]);
+        }
+    }
+}
+
+if($events == NULL){
+    echo "No events today\n";
+    exit(1);
+}
 
 if($events){
     foreach($events as $event){
