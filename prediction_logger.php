@@ -32,7 +32,7 @@ date_default_timezone_set('Europe/Berlin');
 if($events){
     foreach($events as $event){
         # skip events that are already over or too far in the future
-        if($event->Date < date("Y-m-d") || $event->Date > date("Y-m-d", strtotime("+3 days"))){
+        if($event->Date < date("Y-m-d") || $event->Date > date("Y-m-d", strtotime("+60 days"))){
             continue;
         }
 
