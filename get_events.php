@@ -47,9 +47,9 @@ if($events){
             }
 
             if ($i == 0) {
-                exec("at " . $runtime_h_d . $runtime_m . " <<EOT\n php " . dirname(__FILE__) . "/send_push.php " . $event->Event_ID . " " . $event->Type . " \"" . $event->Location . "\" " . "monly" ." >> /home/pog/push_log/" . $event->Event_ID . ".log\nEOT");
-            } else {
                 exec("at " . $runtime_h_d . $runtime_m . " <<EOT\n php " . dirname(__FILE__) . "/send_push.php " . $event->Event_ID . " " . $event->Type . " \"" . $event->Location . "\" >> /home/pog/push_log/" . $event->Event_ID . ".log\nEOT");
+            } else {
+                exec("at " . $runtime_h_d . $runtime_m . " <<EOT\n php " . dirname(__FILE__) . "/send_push.php " . $event->Event_ID . " " . $event->Type . " \"" . $event->Location . "\" " . "monly" ." >> /home/pog/push_log/" . $event->Event_ID . ".log\nEOT");
             }
         }
     }
