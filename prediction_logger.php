@@ -32,7 +32,7 @@ date_default_timezone_set('Europe/Berlin');
 if($events){
     foreach($events as $event){
         # skip events that are already over or too far in the future
-        if($event->Date < date("Y-m-d") || $event->Date > date("Y-m-d", strtotime("+3 days"))){
+        if($event->Date < date("Y-m-d") || $event->Date > date("Y-m-d", strtotime("+60 days"))){
             continue;
         }
 
@@ -52,51 +52,57 @@ if($events){
         $logentry = date("Y-m-d H:i") . ", " . $prediction . ", " . $consent . ", " . $maybe;
 
         if($ev->Category == "event"){
-            // get location
-            if($ev->Address == ""){
-                $ev->Address = $ev->Location;
+
+            if($ev->Date <= date("Y-m-d", strtotime("+15 days"))){
+                // get location
+                if($ev->Address == ""){
+                    $ev->Address = $ev->Location;
+                }
+                
+                // get geo coordinates
+                $url = "https://api.maptiler.com/geocoding/";
+                $add = urlencode($ev->Address);
+                $url .= $add;
+                $url .= ".json?key=m4hEVQNm2k3vfyEB1Bsy";
+
+                $session = curl_init();
+                curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($session, CURLOPT_URL, $url);
+
+                $contents = curl_exec($session);
+
+                curl_close($session);
+
+                $geo = json_decode($contents);
+
+                $lat = $geo->features[0]->geometry->coordinates[1];
+                $lon = $geo->features[0]->geometry->coordinates[0];
+
+                // get weather
+                $url = "https://api.open-meteo.com/v1/forecast?latitude=" . $lat . "&longitude=" . $lon . "&hourly=apparent_temperature,weathercode&start_date=" . $ev->Date . "&end_date=" . $ev->Date . "&timezone=Europe/Berlin";
+
+                $session = curl_init();
+                curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($session, CURLOPT_URL, $url);
+
+                $contents = curl_exec($session);
+
+                curl_close($session);
+
+                $weather = json_decode($contents);
+
+                // get weather for event time
+                $hour = substr($ev->Begin, 0, 2);
+                $hour = intval($hour);
+
+                $weathercode = $weather->hourly->weathercode[$hour];
+                $temperature = $weather->hourly->apparent_temperature[$hour];
+            } else {
+                $weathercode = "-1";
+                $temperature = "-1";
             }
-            
-            // get geo coordinates
-            $url = "https://api.maptiler.com/geocoding/";
-            $add = urlencode($ev->Address);
-            $url .= $add;
-            $url .= ".json?key=m4hEVQNm2k3vfyEB1Bsy";
-
-            $session = curl_init();
-            curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($session, CURLOPT_URL, $url);
-
-            $contents = curl_exec($session);
-
-            curl_close($session);
-
-            $geo = json_decode($contents);
-
-            $lat = $geo->features[0]->geometry->coordinates[1];
-            $lon = $geo->features[0]->geometry->coordinates[0];
-
-            // get weather
-            $url = "https://api.open-meteo.com/v1/forecast?latitude=" . $lat . "&longitude=" . $lon . "&hourly=apparent_temperature,weathercode&start_date=" . $ev->Date . "&end_date=" . $ev->Date . "&timezone=Europe/Berlin";
-
-            $session = curl_init();
-            curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($session, CURLOPT_URL, $url);
-
-            $contents = curl_exec($session);
-
-            curl_close($session);
-
-            $weather = json_decode($contents);
-
-            // get weather for event time
-            $hour = substr($ev->Begin, 0, 2);
-            $hour = intval($hour);
-
-            $weathercode = $weather->hourly->weathercode[$hour];
-            $temperature = $weather->hourly->apparent_temperature[$hour];
 
             $logentry .= ", " . $weathercode . ", " . $temperature . "\n";
         } else {
