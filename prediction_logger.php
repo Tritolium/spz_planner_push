@@ -53,7 +53,7 @@ if($events){
 
         if($ev->Category == "event"){
 
-            if($ev->Date <= date("Y-m-d", strtotime("+1 week"))){
+            if($ev->Date <= date("Y-m-d", strtotime("+15 days"))){
                 // get location
                 if($ev->Address == ""){
                     $ev->Address = $ev->Location;
