@@ -56,6 +56,21 @@ if($events){
 
         $logentry = date("Y-m-d H:i") . ", " . $prediction . ", " . $consent . ", " . $maybe;
 
+        # if the event is today, is practice or event, and prediction is below or equal to 12, trigger the Push notification
+        if($ev->Date == date("Y-m-d") && ($ev->Type == "practice" || $ev->Type == "event") && $prediction <= 12){
+            # call send_push.php Event_ID Type Location, if the event is in the next 2 hours, add "monly" to the end
+            $time = strtotime($ev->Begin);
+            $now = time();
+            $diff = $time - $now;
+            if($diff <= 7200 && $diff >= 0){
+                $cmd = "php send_push.php " . $event->Event_ID . " " . $event->Type . " \"" . $event->Location . "\" monly";
+            } else {
+                $cmd = "php send_push.php " . $event->Event_ID . " " . $event->Type . " \"" . $event->Location . "\"";
+            }
+
+            exec($cmd . " > /dev/null 2>&1 &");
+        }
+
         if($ev->Category == "event"){
 
             if($ev->Date <= date("Y-m-d", strtotime("+15 days"))){
