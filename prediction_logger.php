@@ -36,6 +36,11 @@ if($events){
             continue;
         }
 
+        # skip events that were cancelled or declined
+        if($event->Status > 1){
+            continue;
+        }
+
         if($event->Date == date("Y-m-d")){
             if($event->Begin < date("H:i")){
                 continue;
