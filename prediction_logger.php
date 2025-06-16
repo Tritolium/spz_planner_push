@@ -37,7 +37,7 @@ if($events){
         }
 
         # skip events that were cancelled or declined
-        if($event->Status > 1){
+        if($event->State > 1){
             continue;
         }
 
