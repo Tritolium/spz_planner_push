@@ -1,0 +1,13 @@
+services:
+  data_processor:
+    image: python:latest
+    volumes:
+      - ./prediction_log:/data
+      - ./src:/src
+    working_dir: /src
+    command: >
+      sh -c ". venv/bin/activate &&
+             python3 process.py"
+    environment:
+      - API_TOKEN=${API_TOKEN}
+      - EVENT_ID=${EVENT_ID}
