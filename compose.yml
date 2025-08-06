@@ -1,6 +1,6 @@
 services:
   data_processor:
-    image: python:latest
+    image: python:3.11-slim
     volumes:
       - ./prediction_log:/data
       - ./src:/src
