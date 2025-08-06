@@ -28,7 +28,7 @@ def get_event_info(event_id):
     if event_info.status_code == 200:
         return event_info.json()
     else:
-        print(f"Failed to fetch event info for {event_id}: {event_info.status_code}")
+        print(f"Failed to fetch event info: {event_info.status_code}")
         return None
 
 def predict_next(df, model_pred, model_consent, feature_cols):
@@ -60,7 +60,12 @@ if __name__ == "__main__":
         print("API_TOKEN is not set in the environment variables.")
         exit(1)
     else:
-        print(f"Using API_TOKEN: {api_token}")
+        masked_token = (
+            api_token
+            if len(api_token) <= 4
+            else "*" * (len(api_token) - 4) + api_token[-4:]
+        )
+        print(f"Using API_TOKEN: {masked_token}")
     
     processed_files = 0
 
@@ -75,7 +80,7 @@ if __name__ == "__main__":
                 if not chunk:
                     break
                 checksum.update(chunk)
-    print("Combined CSV checksum:", checksum.hexdigest())
+    # Removed debug print of combined CSV checksum
     # check if checksum file exists
     checksum_file_path = os.path.join(data_dir, 'checksum.txt')
     if os.path.exists(checksum_file_path):
@@ -101,29 +106,22 @@ if __name__ == "__main__":
                 with open(file_path, newline='', encoding='utf-8') as csvfile:
                     # get the event_id from the filename
                     event_id = filename.split('-')[0]
-                    print(f"Processing file for event_id: {event_id}")
                     # get event info
                     event_info = get_event_info(event_id)
 
                     # check if processed file already exists
                     output_file_path = os.path.join(data_dir, f"{event_id}-processed.csv")
                     if os.path.exists(output_file_path):
-                        print(f"Processed file already exists for event {event_id}. Skipping file: {file_path}")
                         continue
 
                     if event_info and (event_info.get('Evaluated') is True
                         or event_info.get('State') == 3):
-                        if event_info.get('Evaluated') is True:
-                            print(f"Event {event_id} is evaluated. Processing file: {file_path}")
-                        elif event_info.get('State') == 3:
-                            print(f"Event {event_id} was cancelled. Processing file: {file_path}")
                         
                         # get event date and time to calc delta
                         event_date = event_info.get('Date')
                         event_time = event_info.get('Begin')
 
                         if not event_date or not event_time:
-                            print(f"Missing date or time for event {event_id}. Skipping file: {file_path}")
                             continue
 
                         event_datetime = f"{event_date} {event_time}"
@@ -143,7 +141,7 @@ if __name__ == "__main__":
                             df = df[df.iloc[:, 1] != 0]
 
                         except Exception as e:
-                            print(f"Error processing file {file_path}: {e}")
+                            print(f"Error processing file: {e}")
                             continue
 
                         df.columns = [col.strip() for col in df.columns]  # strip whitespace from column names
@@ -151,12 +149,10 @@ if __name__ == "__main__":
                         output_file_path = os.path.join(data_dir, f"{event_id}-processed.csv")
                         try:
                             df.to_csv(output_file_path, index=False)
-                            print(f"Processed file saved: {output_file_path}")
                             processed_files += 1
                         except Exception as e:
-                            print(f"Error saving processed file {output_file_path}: {e}")
+                            print(f"Error saving processed file: {e}")
                     else:
-                        print(f"Event {event_id} is not evaluated or event info is missing. Skipping file: {file_path}")
                         continue
 
                     # remove original file
@@ -177,19 +173,17 @@ if __name__ == "__main__":
             df = pd.read_csv(file_path)
             combined_df = pd.concat([combined_df, df], ignore_index=True)
         except Exception as e:
-            print(f"Error reading processed file {file_path}: {e}")
+            print(f"Error reading processed file: {e}")
     # save combined dataframe to csv
     combined_file_path = os.path.join(data_dir, 'combined.csv')
     try:
         # remove old combined file if it exists
         if os.path.exists(combined_file_path):
             os.remove(combined_file_path)
-            print(f"Removed old combined processed file: {combined_file_path}")
         # save new combined dataframe
         combined_df.to_csv(combined_file_path, index=False)
-        print(f"Combined processed file saved: {combined_file_path}")
     except Exception as e:
-        print(f"Error saving combined processed file {combined_file_path}: {e}")
+        print(f"Error saving combined processed file: {e}")
 
     cat_type = pd.api.types.CategoricalDtype(categories=combined_df["Category"].unique(), ordered=True)
 
@@ -257,11 +251,11 @@ if __name__ == "__main__":
     
     probe_files = [f for f in os.listdir(data_dir) if f.startswith(f'{event_id}') and f.endswith('.csv') and f != f'{event_id}-processed.csv']
     if not probe_files:
-        print(f"No probe file found for event_id {event_id}.")
+        print("No probe file found for the event.")
         exit(1)
     df_probe = pd.DataFrame()
-    
-    print(f"Found {len(probe_files)} probe files for event_id {event_id}.")
+
+    print(f"Found {len(probe_files)} probe files.")
 
     for probe_file in probe_files:
         probe_file_path = os.path.join(data_dir, probe_file)
@@ -294,8 +288,6 @@ if __name__ == "__main__":
         # Predict next values
         df_probe_next = predict_next(df_probe.tail(1), model_pred, model_consent, feature_cols)
 
-        print(df_probe_next[["Delta", "Prediction", "Consent"]])
-
         # Append the new prediction to the dataframe
         df_probe = pd.concat([df_probe, df_probe_next], ignore_index=True)
 
@@ -324,7 +316,4 @@ if __name__ == "__main__":
     xgb.plot_importance(model_consent, title='Feature Importance for Consent Model')
     plt.savefig(os.path.join(data_dir, 'feature_importance_consent.png'))
 
-    # print the feature importance
-    print("Feature importance for Prediction Model:")
-    for i, (feature, score) in enumerate(zip(model_pred.get_booster().feature_names, model_pred.feature_importances_)):
-        print(f"{i+1}. {feature}: {score:.4f}")
+    # Feature importance is computed but not printed to avoid leaking information
