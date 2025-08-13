@@ -14,6 +14,10 @@ def train_models():
         return
 
     df = pd.read_csv(combined_file_path)
+    # Ensure numeric columns are of proper dtype
+    for col in ["Prediction", "Consent", "Maybe"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
     cat_type = pd.api.types.CategoricalDtype(
         categories=df["Category"].unique(), ordered=True
     )
@@ -21,11 +25,13 @@ def train_models():
     df = df.sort_values(by=["Event_ID", "Delta"])
     df["Prediction_lag1"] = df.groupby("Event_ID")["Prediction"].shift(1)
     df["Consent_lag1"] = df.groupby("Event_ID")["Consent"].shift(1)
+    df["Maybe_lag1"] = df.groupby("Event_ID")["Maybe"].shift(1)
     df["Category_enc"] = df["Category"].astype(cat_type).cat.codes
 
     X = df[feature_cols]
     y_pred = df["Prediction"]
     y_consent = df["Consent"]
+    y_maybe = df["Maybe"]
 
     X_train_p, X_test_p, y_train_p, y_test_p = train_test_split(
         X, y_pred, test_size=0.2, random_state=42
@@ -33,14 +39,20 @@ def train_models():
     X_train_c, X_test_c, y_train_c, y_test_c = train_test_split(
         X, y_consent, test_size=0.2, random_state=42
     )
+    X_train_m, X_test_m, y_train_m, y_test_m = train_test_split(
+        X, y_maybe, test_size=0.2, random_state=42
+    )
 
     model_pred = xgb.XGBRegressor(n_estimators=100, max_depth=4, random_state=42)
     model_pred.fit(X_train_p, y_train_p)
     model_consent = xgb.XGBRegressor(n_estimators=100, max_depth=4, random_state=42)
     model_consent.fit(X_train_c, y_train_c)
+    model_maybe = xgb.XGBRegressor(n_estimators=100, max_depth=4, random_state=42)
+    model_maybe.fit(X_train_m, y_train_m)
 
     model_pred.save_model(os.path.join(data_dir, 'model_prediction.json'))
     model_consent.save_model(os.path.join(data_dir, 'model_consent.json'))
+    model_maybe.save_model(os.path.join(data_dir, 'model_maybe.json'))
     print("Model training completed.")
 
 
