@@ -23,6 +23,9 @@ def predict_next(df: pd.DataFrame, model_pred, model_consent, model_maybe):
             "Weekday": [df["Weekday"].values[0]],
         }
     )
+    # Convert all feature columns to numeric to avoid dtype issues
+    for col in feature_cols:
+        next_df[col] = pd.to_numeric(next_df[col], errors="coerce")
     next_df["Prediction"] = model_pred.predict(next_df[feature_cols])
     next_df["Consent"] = model_consent.predict(next_df[feature_cols])
     next_df["Maybe"] = model_maybe.predict(next_df[feature_cols])
@@ -73,6 +76,10 @@ def run_prediction(event_id: str):
         df_single = pd.read_csv(probe_file_path, parse_dates=[0])
         df_probe = pd.concat([df_probe, df_single])
     df_probe.columns = [col.strip() for col in df_probe.columns]
+
+    # Ensure numeric columns have proper dtype
+    for col in ["Prediction", "Consent", "Maybe"]:
+        df_probe[col] = pd.to_numeric(df_probe[col], errors="coerce")
 
     event_info = get_event_info(event_id)
     event_date = event_info.get('Date')

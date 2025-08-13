@@ -14,6 +14,10 @@ def train_models():
         return
 
     df = pd.read_csv(combined_file_path)
+    # Ensure numeric columns are of proper dtype
+    for col in ["Prediction", "Consent", "Maybe"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
     cat_type = pd.api.types.CategoricalDtype(
         categories=df["Category"].unique(), ordered=True
     )
