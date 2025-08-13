@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from utils import data_dir, feature_cols, get_event_info
 
 
-def predict_next(df: pd.DataFrame, model_pred, model_consent):
+def predict_next(df: pd.DataFrame, model_pred, model_consent, model_maybe):
     next_df = pd.DataFrame(
         {
             "Delta": [df["Delta"].values[0] + 1]
@@ -19,18 +19,25 @@ def predict_next(df: pd.DataFrame, model_pred, model_consent):
             "Cancelled": [df["Cancelled"].values[0]],
             "Prediction_lag1": [df["Prediction"].values[0]],
             "Consent_lag1": [df["Consent"].values[0]],
+            "Maybe_lag1": [df["Maybe"].values[0]],
             "Weekday": [df["Weekday"].values[0]],
         }
     )
     next_df["Prediction"] = model_pred.predict(next_df[feature_cols])
     next_df["Consent"] = model_consent.predict(next_df[feature_cols])
+    next_df["Maybe"] = model_maybe.predict(next_df[feature_cols])
     return next_df
 
 
 def run_prediction(event_id: str):
     model_pred_path = os.path.join(data_dir, 'model_prediction.json')
     model_consent_path = os.path.join(data_dir, 'model_consent.json')
-    if not (os.path.exists(model_pred_path) and os.path.exists(model_consent_path)):
+    model_maybe_path = os.path.join(data_dir, 'model_maybe.json')
+    if not (
+        os.path.exists(model_pred_path)
+        and os.path.exists(model_consent_path)
+        and os.path.exists(model_maybe_path)
+    ):
         print("Models not found; run training first.")
         return
 
@@ -43,6 +50,8 @@ def run_prediction(event_id: str):
     model_pred.load_model(model_pred_path)
     model_consent = xgb.XGBRegressor()
     model_consent.load_model(model_consent_path)
+    model_maybe = xgb.XGBRegressor()
+    model_maybe.load_model(model_maybe_path)
 
     combined_df = pd.read_csv(combined_file_path)
     cat_type = pd.api.types.CategoricalDtype(
@@ -78,6 +87,7 @@ def run_prediction(event_id: str):
     df_probe["Cancelled"] = event_info.get('State') == 3
     df_probe["Prediction_lag1"] = df_probe["Prediction"].shift(1)
     df_probe["Consent_lag1"] = df_probe["Consent"].shift(1)
+    df_probe["Maybe_lag1"] = df_probe["Maybe"].shift(1)
     df_probe["Category_enc"] = df_probe["Category"].astype(cat_type).cat.codes
     df_probe["Weekday"] = datetime.strptime(
         event_datetime, '%Y-%m-%d %H:%M:%S'
@@ -87,7 +97,7 @@ def run_prediction(event_id: str):
     latest_delta = df_probe["Delta"].max()
 
     while df_probe["Delta"].iloc[-1] < 0:
-        df_probe_next = predict_next(df_probe.tail(1), model_pred, model_consent)
+        df_probe_next = predict_next(df_probe.tail(1), model_pred, model_consent, model_maybe)
         df_probe = pd.concat([df_probe, df_probe_next], ignore_index=True)
 
     df_probe = df_probe[df_probe["Delta"] >= -168]
@@ -95,6 +105,7 @@ def run_prediction(event_id: str):
     plt.figure(figsize=(12, 6))
     plt.plot(df_probe["Delta"], df_probe["Prediction"], label="Prediction", marker='o')
     plt.plot(df_probe["Delta"], df_probe["Consent"], label="Consent", marker='x')
+    plt.plot(df_probe["Delta"], df_probe["Maybe"], label="Maybe", marker='s')
     plt.axvline(x=latest_delta, color='r', linestyle='--', label='Latest Delta')
     plt.xlabel("Delta (hours)")
     plt.ylabel("Values")
@@ -108,6 +119,9 @@ def run_prediction(event_id: str):
 
     xgb.plot_importance(model_consent, title='Feature Importance for Consent Model')
     plt.savefig(os.path.join(data_dir, 'feature_importance_consent.png'))
+
+    xgb.plot_importance(model_maybe, title='Feature Importance for Maybe Model')
+    plt.savefig(os.path.join(data_dir, 'feature_importance_maybe.png'))
 
 
 if __name__ == '__main__':

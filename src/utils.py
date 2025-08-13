@@ -9,6 +9,7 @@ feature_cols = [
     "Usergroup",
     "Prediction_lag1",
     "Consent_lag1",
+    "Maybe_lag1",
     "Cancelled",
     "Weekday",
 ]
