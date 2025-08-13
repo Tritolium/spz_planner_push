@@ -1,12 +1,13 @@
 services:
   data_processor:
-    image: python:3.11-slim
+    image: python:3.13
     volumes:
       - ./prediction_log:/data
       - ./src:/src
     working_dir: /src
     command: >
       sh -c ". venv/bin/activate &&
+             pip install -r requirements.txt &&
              python3 process.py"
     environment:
       - API_TOKEN=${API_TOKEN}
