@@ -1,4 +1,5 @@
 import os
+import json
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -12,6 +13,18 @@ def train_models():
     if not os.path.exists(combined_file_path):
         print("Combined dataset not found; run preprocessing first.")
         return
+
+    metadata_file = os.path.join(data_dir, 'training_metadata.json')
+    combined_mtime = os.path.getmtime(combined_file_path)
+    if os.path.exists(metadata_file):
+        try:
+            with open(metadata_file, 'r') as f:
+                metadata = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            metadata = {}
+        if metadata.get('combined_mtime') == combined_mtime:
+            print("Modelle aktuell, Training übersprungen")
+            return
 
     df = pd.read_csv(combined_file_path)
     # Ensure numeric columns are of proper dtype
@@ -53,6 +66,8 @@ def train_models():
     model_pred.save_model(os.path.join(data_dir, 'model_prediction.json'))
     model_consent.save_model(os.path.join(data_dir, 'model_consent.json'))
     model_maybe.save_model(os.path.join(data_dir, 'model_maybe.json'))
+    with open(metadata_file, 'w') as f:
+        json.dump({'combined_mtime': combined_mtime}, f)
     print("Model training completed.")
 
 
