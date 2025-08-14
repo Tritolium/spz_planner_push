@@ -3,3 +3,5 @@ composer.phar
 /usage_log/
 /vendor/
 .env
+
+/src/__pycache__/
