@@ -8,7 +8,7 @@ services:
     command: >
       sh -c ". venv/bin/activate &&
              pip install -r requirements.txt &&
-             python3 process.py"
+             python3 watch_data.py"
     environment:
       - API_TOKEN=${API_TOKEN}
       - EVENT_ID=${EVENT_ID}
