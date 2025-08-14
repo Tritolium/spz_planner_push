@@ -11,7 +11,9 @@ def preprocess_data():
     processed_files = 0
 
     csv_files = [
-        f for f in os.listdir(data_dir) if f.endswith('.csv') and '-processed' not in f
+        f
+        for f in os.listdir(data_dir)
+        if f.endswith('.csv') and '-processed' not in f and f != 'combined.csv'
     ]
     checksum = hashlib.sha256()
     for filename in sorted(csv_files):
@@ -35,6 +37,11 @@ def preprocess_data():
         print("Checksum file does not exist, processing all files.")
     with open(checksum_file_path, 'w') as f:
         f.write(checksum.hexdigest())
+
+    combined_file_path = os.path.join(data_dir, 'combined.csv')
+    if not changes and os.path.exists(combined_file_path):
+        print("Input data unchanged; combined dataset is up to date.")
+        return
 
     if changes:
         for filename in os.listdir(data_dir):
@@ -97,7 +104,6 @@ def preprocess_data():
         except Exception as e:  # noqa: BLE001
             print(f"Error reading processed file: {e}")
 
-    combined_file_path = os.path.join(data_dir, 'combined.csv')
     try:
         if os.path.exists(combined_file_path):
             os.remove(combined_file_path)
