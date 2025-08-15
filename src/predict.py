@@ -130,7 +130,10 @@ def run_prediction(event_id: str):
     xgb.plot_importance(model_maybe, title='Feature Importance for Maybe Model')
     plt.savefig(os.path.join(data_dir, 'feature_importance_maybe.png'))
 
-    return df_probe[["Delta", "Prediction", "Consent", "Maybe"]]
+    result_df = df_probe[["Delta", "Prediction", "Consent", "Maybe"]].copy()
+    for col in ["Prediction", "Consent", "Maybe"]:
+        result_df[col] = result_df[col].round().astype(int)
+    return result_df
 
 
 if __name__ == '__main__':
