@@ -42,12 +42,12 @@ def run_prediction(event_id: str):
         and os.path.exists(model_maybe_path)
     ):
         print("Models not found; run training first.")
-        return
+        return None
 
     combined_file_path = os.path.join(data_dir, 'combined.csv')
     if not os.path.exists(combined_file_path):
         print("Combined dataset not found; run preprocessing first.")
-        return
+        return None
 
     model_pred = xgb.XGBRegressor()
     model_pred.load_model(model_pred_path)
@@ -68,7 +68,7 @@ def run_prediction(event_id: str):
     ]
     if not probe_files:
         print("No probe file found for the event.")
-        return
+        return None
 
     df_probe = pd.DataFrame()
     for probe_file in probe_files:
@@ -129,6 +129,8 @@ def run_prediction(event_id: str):
 
     xgb.plot_importance(model_maybe, title='Feature Importance for Maybe Model')
     plt.savefig(os.path.join(data_dir, 'feature_importance_maybe.png'))
+
+    return df_probe[["Delta", "Prediction", "Consent", "Maybe"]]
 
 
 if __name__ == '__main__':
