@@ -8,7 +8,7 @@ def prediction(event_id):
     df = run_prediction(event_id)
     if df is None or df.empty:
         return jsonify({'error': 'prediction failed'}), 404
-    return jsonify(df.to_dict(orient='records'))
+    return jsonify({'columns': df.columns.tolist(), 'rows': len(df)})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
