@@ -22,6 +22,16 @@ def main() -> None:
     combined_path = os.path.join(data_dir, 'combined.csv')
     combined_mtime = os.path.getmtime(combined_path) if os.path.exists(combined_path) else 0
 
+    # Run preprocessing once if no processed files exist yet
+    processed_present = any(
+        f.endswith('-processed.csv') for f in os.listdir(data_dir)
+    )
+    if not processed_present:
+        preprocess_data()
+        if os.path.exists(combined_path):
+            train_models()
+            combined_mtime = os.path.getmtime(combined_path)
+
     while True:
         time.sleep(CHECK_INTERVAL)
 
