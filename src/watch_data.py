@@ -4,7 +4,7 @@ from typing import Dict
 
 from preprocess import preprocess_data
 from train_models import train_models
-from utils import data_dir
+from utils import data_dir, get_event_info
 
 CHECK_INTERVAL = 10  # seconds
 
@@ -41,6 +41,25 @@ def main() -> None:
             preprocess_data()
             raw_state = current_raw
             combined_mtime = os.path.getmtime(combined_path) if os.path.exists(combined_path) else combined_mtime
+        else:
+            # Trigger preprocessing if an event becomes evaluated
+            for f in os.listdir(data_dir):
+                if f.endswith('.csv') and '-processed' not in f and f != 'combined.csv':
+                    event_id = f.split('-')[0]
+                    processed_path = os.path.join(
+                        data_dir, f"{event_id}-processed.csv"
+                    )
+                    if os.path.exists(processed_path):
+                        continue
+                    event_info = get_event_info(event_id)
+                    if event_info and (
+                        event_info.get('Evaluated') is True
+                        or event_info.get('State') == 3
+                    ):
+                        preprocess_data()
+                        raw_state = snapshot_raw()
+                        combined_mtime = os.path.getmtime(combined_path) if os.path.exists(combined_path) else combined_mtime
+                        break
 
         # Trigger training when combined dataset changes
         if os.path.exists(combined_path):

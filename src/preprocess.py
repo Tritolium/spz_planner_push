@@ -39,6 +39,22 @@ def preprocess_data():
         f.write(checksum.hexdigest())
 
     combined_file_path = os.path.join(data_dir, 'combined.csv')
+
+    # When no raw files changed, check if any previously skipped events
+    # have since been marked evaluated so we can process them now.
+    if not changes:
+        for filename in csv_files:
+            event_id = filename.split('-')[0]
+            output_file_path = os.path.join(data_dir, f"{event_id}-processed.csv")
+            if os.path.exists(output_file_path):
+                continue
+            event_info = get_event_info(event_id)
+            if event_info and (
+                event_info.get('Evaluated') is True or event_info.get('State') == 3
+            ):
+                changes = True
+                break
+
     if not changes and os.path.exists(combined_file_path):
         print("Input data unchanged; combined dataset is up to date.")
         return
