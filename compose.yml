@@ -8,7 +8,20 @@ services:
     command: >
       sh -c ". venv/bin/activate &&
              pip install -r requirements.txt &&
-             python3 process.py"
+             python3 watch_data.py"
     environment:
       - API_TOKEN=${API_TOKEN}
-      - EVENT_ID=${EVENT_ID}
+  web:
+    image: python:3.13
+    volumes:
+      - ./prediction_log:/data
+      - ./src:/src
+    working_dir: /src
+    command: >
+      sh -c ". venv/bin/activate &&
+             pip install -r requirements.txt &&
+             python3 server.py"
+    environment:
+      - API_TOKEN=${API_TOKEN}
+    ports:
+      - "8000:8000"

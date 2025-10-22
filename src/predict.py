@@ -42,12 +42,12 @@ def run_prediction(event_id: str):
         and os.path.exists(model_maybe_path)
     ):
         print("Models not found; run training first.")
-        return
+        return None
 
     combined_file_path = os.path.join(data_dir, 'combined.csv')
     if not os.path.exists(combined_file_path):
         print("Combined dataset not found; run preprocessing first.")
-        return
+        return None
 
     model_pred = xgb.XGBRegressor()
     model_pred.load_model(model_pred_path)
@@ -68,11 +68,12 @@ def run_prediction(event_id: str):
     ]
     if not probe_files:
         print("No probe file found for the event.")
-        return
+        return None
 
     df_probe = pd.DataFrame()
     for probe_file in probe_files:
         probe_file_path = os.path.join(data_dir, probe_file)
+        cleancsvfile(probe_file_path)
         df_single = pd.read_csv(probe_file_path, parse_dates=[0])
         df_probe = pd.concat([df_probe, df_single])
     df_probe.columns = [col.strip() for col in df_probe.columns]
@@ -130,6 +131,17 @@ def run_prediction(event_id: str):
     xgb.plot_importance(model_maybe, title='Feature Importance for Maybe Model')
     plt.savefig(os.path.join(data_dir, 'feature_importance_maybe.png'))
 
+    result_df = df_probe[["Delta", "Prediction", "Consent", "Maybe"]].copy()
+    for col in ["Prediction", "Consent", "Maybe"]:
+        result_df[col] = result_df[col].round().astype(int)
+    return result_df
+
+def cleancsvfile(filepath: str):
+    df = pd.read_csv(filepath)
+    df.columns = df.columns.str.strip()
+    # remove all rows where Prediction is 0
+    df = df[df['Prediction'] != 0]
+    df.to_csv(filepath, index=False)
 
 if __name__ == '__main__':
     EVENT_ID = os.getenv('EVENT_ID')
