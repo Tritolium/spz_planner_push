@@ -63,9 +63,9 @@ if($events){
             $now = time();
             $diff = $time - $now;
             if($diff <= 7200 && $diff >= 0){
-                $cmd = "php send_push.php " . $event->Event_ID . " " . $event->Type . " \"" . $event->Location . "\" monly";
-            } else {
                 $cmd = "php send_push.php " . $event->Event_ID . " " . $event->Type . " \"" . $event->Location . "\"";
+            } else {
+                $cmd = "php send_push.php " . $event->Event_ID . " " . $event->Type . " \"" . $event->Location . "\" monly";
             }
 
             exec($cmd . " > /dev/null 2>&1 &");
