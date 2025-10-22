@@ -2,3 +2,6 @@ composer.phar
 /prediction_log/
 /usage_log/
 /vendor/
+.env
+
+/src/__pycache__/
