@@ -73,6 +73,7 @@ def run_prediction(event_id: str):
     df_probe = pd.DataFrame()
     for probe_file in probe_files:
         probe_file_path = os.path.join(data_dir, probe_file)
+        cleancsvfile(probe_file_path)
         df_single = pd.read_csv(probe_file_path, parse_dates=[0])
         df_probe = pd.concat([df_probe, df_single])
     df_probe.columns = [col.strip() for col in df_probe.columns]
@@ -135,6 +136,12 @@ def run_prediction(event_id: str):
         result_df[col] = result_df[col].round().astype(int)
     return result_df
 
+def cleancsvfile(filepath: str):
+    df = pd.read_csv(filepath)
+    df.columns = df.columns.str.strip()
+    # remove all rows where Prediction is 0
+    df = df[df['Prediction'] != 0]
+    df.to_csv(filepath, index=False)
 
 if __name__ == '__main__':
     EVENT_ID = os.getenv('EVENT_ID')
