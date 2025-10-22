@@ -1,7 +1,13 @@
 from flask import Flask, jsonify
+from flask import after_this_request
 from predict import run_prediction
 
 app = Flask(__name__)
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 @app.route('/prediction/<event_id>')
 def prediction(event_id):
