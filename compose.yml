@@ -16,11 +16,11 @@ services:
         limits:
           cpus: '0.50'
           memory: 512M
+          pids: 100
         reservations:
           cpus: '0.25'
           memory: 256M
     memswap_limit: 0
-    pids_limit: 100
   web:
     image: python:3.13-slim
     volumes:
@@ -38,10 +38,10 @@ services:
         limits:
           cpus: '0.50'
           memory: 512M
+          pids: 100
         reservations:
           cpus: '0.25'
           memory: 256M
     memswap_limit: 0
-    pids_limit: 100
     ports:
       - "8000:8000"
