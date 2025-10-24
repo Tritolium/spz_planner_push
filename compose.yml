@@ -1,6 +1,6 @@
 services:
   data_processor:
-    image: python:3.13
+    image: python:3.13-slim
     volumes:
       - ./prediction_log:/data
       - ./src:/src
@@ -11,8 +11,18 @@ services:
              python3 watch_data.py"
     environment:
       - API_TOKEN=${API_TOKEN}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    memswap_limit: 0
+    pids_limit: 100
   web:
-    image: python:3.13
+    image: python:3.13-slim
     volumes:
       - ./prediction_log:/data
       - ./src:/src
@@ -23,5 +33,15 @@ services:
              python3 server.py"
     environment:
       - API_TOKEN=${API_TOKEN}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    memswap_limit: 0
+    pids_limit: 100
     ports:
       - "8000:8000"
