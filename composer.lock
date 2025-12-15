@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6b1f37a83d4c02d11f22eba75b738251",
+    "content-hash": "68f0501fde04b471249d293b58bf680b",
     "packages": [
         {
             "name": "brick/math",
-            "version": "0.14.0",
+            "version": "0.14.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/brick/math.git",
-                "reference": "113a8ee2656b882d4c3164fa31aa6e12cbb7aaa2"
+                "reference": "f05858549e5f9d7bb45875a75583240a38a281d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/brick/math/zipball/113a8ee2656b882d4c3164fa31aa6e12cbb7aaa2",
-                "reference": "113a8ee2656b882d4c3164fa31aa6e12cbb7aaa2",
+                "url": "https://api.github.com/repos/brick/math/zipball/f05858549e5f9d7bb45875a75583240a38a281d0",
+                "reference": "f05858549e5f9d7bb45875a75583240a38a281d0",
                 "shasum": ""
             },
             "require": {
@@ -56,7 +56,7 @@
             ],
             "support": {
                 "issues": "https://github.com/brick/math/issues",
-                "source": "https://github.com/brick/math/tree/0.14.0"
+                "source": "https://github.com/brick/math/tree/0.14.1"
             },
             "funding": [
                 {
@@ -64,7 +64,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-08-29T12:40:03+00:00"
+            "time": "2025-11-24T14:40:29+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -393,16 +393,16 @@
         },
         {
             "name": "minishlink/web-push",
-            "version": "v9.0.3",
+            "version": "v10.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-push-libs/web-push-php.git",
-                "reference": "5c185f78ee41f271e2ea7314c80760040465b713"
+                "reference": "6e8ca8bc56a47d79c0c2e1b299f1c07ffe7515a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-push-libs/web-push-php/zipball/5c185f78ee41f271e2ea7314c80760040465b713",
-                "reference": "5c185f78ee41f271e2ea7314c80760040465b713",
+                "url": "https://api.github.com/repos/web-push-libs/web-push-php/zipball/6e8ca8bc56a47d79c0c2e1b299f1c07ffe7515a3",
+                "reference": "6e8ca8bc56a47d79c0c2e1b299f1c07ffe7515a3",
                 "shasum": ""
             },
             "require": {
@@ -410,15 +410,16 @@
                 "ext-json": "*",
                 "ext-mbstring": "*",
                 "ext-openssl": "*",
-                "guzzlehttp/guzzle": "^7.4.5",
-                "php": ">=8.1",
+                "guzzlehttp/guzzle": "^7.9.2",
+                "php": ">=8.2",
                 "spomky-labs/base64url": "^2.0.4",
-                "web-token/jwt-library": "^3.3.0|^4.0.0"
+                "web-token/jwt-library": "^3.4.9|^4.0.6"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^v3.68.5",
-                "phpstan/phpstan": "^2.1.2",
-                "phpunit/phpunit": "^10.5.44|^11.5.6"
+                "friendsofphp/php-cs-fixer": "^v3.91.3",
+                "phpstan/phpstan": "^2.1.33",
+                "phpunit/phpunit": "^11.5.46|^12.5.2",
+                "symfony/polyfill-iconv": "^1.33"
             },
             "suggest": {
                 "ext-bcmath": "Optional for performance.",
@@ -452,9 +453,9 @@
             ],
             "support": {
                 "issues": "https://github.com/web-push-libs/web-push-php/issues",
-                "source": "https://github.com/web-push-libs/web-push-php/tree/v9.0.3"
+                "source": "https://github.com/web-push-libs/web-push-php/tree/v10.0.0"
             },
-            "time": "2025-11-13T17:14:30+00:00"
+            "time": "2025-12-12T09:18:50+00:00"
         },
         {
             "name": "psr/clock",
@@ -951,16 +952,16 @@
         },
         {
             "name": "web-token/jwt-library",
-            "version": "4.1.0",
+            "version": "4.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/web-token/jwt-library.git",
-                "reference": "b05d01d4138b1e06328e29075a21a6da974935df"
+                "reference": "621ff3ec618c6a34f63d47e467cefe8788871d6f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/web-token/jwt-library/zipball/b05d01d4138b1e06328e29075a21a6da974935df",
-                "reference": "b05d01d4138b1e06328e29075a21a6da974935df",
+                "url": "https://api.github.com/repos/web-token/jwt-library/zipball/621ff3ec618c6a34f63d47e467cefe8788871d6f",
+                "reference": "621ff3ec618c6a34f63d47e467cefe8788871d6f",
                 "shasum": ""
             },
             "require": {
@@ -1024,7 +1025,7 @@
             ],
             "support": {
                 "issues": "https://github.com/web-token/jwt-library/issues",
-                "source": "https://github.com/web-token/jwt-library/tree/4.1.0"
+                "source": "https://github.com/web-token/jwt-library/tree/4.1.2"
             },
             "funding": [
                 {
@@ -1036,7 +1037,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-10-22T08:01:38+00:00"
+            "time": "2025-11-17T21:14:49+00:00"
         }
     ],
     "packages-dev": [],
