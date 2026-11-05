@@ -3,7 +3,7 @@ $events = json_decode(file_get_contents('https://spzroenkhausen.bplaced.net/api/
 
 // timings for push messages, in hours before the event
 $delta_events = [2,4,6];
-$delta_practices = [1,2,6,8,10];
+$delta_practices = [1,2,3,6,8,10];
 $delta = [];
 
 // filter out events that are not today, tomorrow or already declined
@@ -55,7 +55,7 @@ if($events){
                 continue;
             }
 
-            if ($i == 0) {
+            if ($i == 0 || $i == 1) {
                 exec("at " . $runtime_h_d . $runtime_m . " <<EOT\n php " . dirname(__FILE__) . "/send_push.php " . $event->Event_ID . " " . $event->Type . " \"" . $event->Location . "\" >> /home/pog/push_log/" . $event->Event_ID . ".log\nEOT");
             } else {
                 exec("at " . $runtime_h_d . $runtime_m . " <<EOT\n php " . dirname(__FILE__) . "/send_push.php " . $event->Event_ID . " " . $event->Type . " \"" . $event->Location . "\" " . "monly" ." >> /home/pog/push_log/" . $event->Event_ID . ".log\nEOT");
